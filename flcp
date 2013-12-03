@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+#Author: MD. Toufique Imam Chowdhury <kobishaeb@gmail.com>
+#Licence: GPL v2 <www.gnu.org/licenses/gpl-2.0.html>
+require 'tk'
+require 'securerandom'
+require 'fileutils'
+include FileUtils::Verbose
+
+
+
+def rfname
+	SecureRandom.hex(4)
+end
+
+
+def corepg
+	output_text = ""
+	x = `pidof plugin-container`
+	x = x.to_i
+	if x == 0
+		output_text += "No Video found \n"
+		puts output_text
+		output(log = output_text)
+	else
+		 output_text += "Scanning started \n"
+		s = Dir.chdir("/proc/#{x}/fd".gsub(/\n/,""))
+		total_match = 0
+		a = Dir.glob('*') do |wer|
+			 b = File.readlink(wer)
+			 erb = /Flash*/.match(b)
+			 
+			 if erb
+				cp(wer, "#{Dir.home}/#{rfname}.flv")
+				total_match += 1
+				output_text += "number #{total_match} video copied \n"
+			  end	
+		end
+		output_text += "Total #{total_match} video(s) copied to home folder \n"	
+		puts output_text
+		output(log = output_text)
+		
+	end	
+end
+
+root = TkRoot.new{ title "Buffered Flash downloader" }
+btn_OK = TkButton.new(root) do
+  text "Press to \n download flash video"
+  borderwidth 1
+  underline 1
+  state "normal"
+  foreground  "red"
+  activebackground "white"
+  relief      "groove"
+  command {corepg}
+  pack("side" => "right",  "padx"=> "50", "pady"=> "10")
+end
+
+btn_OK = TkButton.new(root) do
+  text "About"
+  borderwidth 1
+  underline 1
+  state "normal"
+  relief "groove"
+  command {about}  
+  pack("side" => "left",  "padx"=> "50", "pady"=> "10")
+end
+
+def output(log)
+	text = TkText.new(root) do
+	  width 20
+	  height 10
+	  borderwidth 1
+	  tabs 1
+	  font TkFont.new('times 10')
+	   pack("side" => "bottom",  "padx"=> "5", "pady"=> "5")
+	end
+	text.insert 'end', log
+end
+
+def about
+	msgBox = Tk.messageBox(
+	  'type'    => "ok",  
+	  'icon'    => "info", 
+	  'title'   => "About",
+	  'message' => "Copyright 2013 \n MD. Toufique Imam \n <kobishaeb@gmail.com> \n Licence GPL v2"
+	)
+end
+Tk.mainloop
