@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+require 'securerandom'
+require 'fileutils'
+include FileUtils::Verbose
+
+def rfname
+	SecureRandom.hex(4)
+end
+
+puts "Buffering Flash video downloader"
+puts "Scanning started"
+
+
+x = `pidof plugin-container`
+x = x.to_i
+if x == 0
+	puts "No Video found"
+else
+	s = Dir.chdir("/proc/#{x}/fd".gsub(/\n/,""))
+	total_match = 0
+	a = Dir.glob('*') do |wer|
+		 b = File.readlink(wer)
+		 erb = /Flash*/.match(b)
+		 
+		 if erb
+			cp(wer, "#{Dir.home}/#{rfname}.flv")
+			total_match += 1
+			puts "number #{total_match} video copied"
+		  end	
+	end
+	puts "Total #{total_match} video(s) copied to home folder"	
+end		
+		
+			
+		
+				
+		
+
